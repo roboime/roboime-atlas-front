@@ -114,21 +114,13 @@ class Field extends React.Component {
 
     let dField = ''
     dField += `M ${-g.field_length / 2} ${-g.field_width / 2} h ${g.field_length} v ${g.field_width} h-${g.field_length} v-${g.field_width} m ${g.line_width} ${g.line_width} v ${g.field_width - 2 * g.line_width} h ${g.field_length - 2 * g.line_width} v-${g.field_width - 2 * g.line_width} h-${g.field_length - 2 * g.line_width}\n`
-
     dField += `M ${g.line_width / 2}-${g.field_width / 2} v ${g.field_width} h-${g.line_width} v-${g.field_width} h ${g.line_width}\n`
-
     dField += `M 0-${g.center_circle_radius} a ${g.center_circle_radius} ${g.center_circle_radius} 0 0 1 0 ${2 * g.center_circle_radius} a ${g.center_circle_radius} ${g.center_circle_radius} 0 0 1 0-${2 * g.center_circle_radius} m 0 ${g.line_width} a ${g.center_circle_radius - g.line_width} ${g.center_circle_radius - g.line_width} 0 0 0 0 ${2 * (g.center_circle_radius - g.line_width)} a ${g.center_circle_radius - g.line_width} ${g.center_circle_radius - g.line_width} 0 0 0 0-${2 * (g.center_circle_radius - g.line_width)}\n`
-
     dField += `M 0-${1.5 * g.line_width} a ${1.5 * g.line_width} ${1.5 * g.line_width} 0 0 1 0 ${3 * g.line_width} a ${1.5 * g.line_width} ${1.5 * g.line_width} 0 0 1 0-${3 * g.line_width}\n`
-
     dField += `M-${g.field_length / 2}-${g.defense_radius + g.defense_stretch / 2} a ${g.defense_radius} ${g.defense_radius} 0 0 1 ${g.defense_radius} ${g.defense_radius} v ${g.defense_stretch} a ${g.defense_radius} ${g.defense_radius} 0 0 1-${g.defense_radius} ${g.defense_radius} v-${g.line_width} a ${g.defense_radius - g.line_width} ${g.defense_radius - g.line_width} 0 0 0 ${g.defense_radius - g.line_width}-${g.defense_radius - g.line_width} v-${g.defense_stretch} a ${g.defense_radius - g.line_width} ${g.defense_radius - g.line_width} 0 0 0-${g.defense_radius - g.line_width}-${g.defense_radius - g.line_width}\n`
-
     dField += `M ${g.field_length / 2} ${g.defense_radius + g.defense_stretch / 2} a ${g.defense_radius} ${g.defense_radius} 0 0 1-${g.defense_radius}-${g.defense_radius} v-${g.defense_stretch} a ${g.defense_radius} ${g.defense_radius} 0 0 1 ${g.defense_radius}-${g.defense_radius} v ${g.line_width} a ${g.defense_radius - g.line_width} ${g.defense_radius - g.line_width} 0 0 0-${g.defense_radius - g.line_width} ${g.defense_radius - g.line_width} v ${g.defense_stretch} a ${g.defense_radius - g.line_width} ${g.defense_radius - g.line_width} 0 0 0 ${g.defense_radius - g.line_width} ${g.defense_radius - g.line_width}\n`
-
     dField += `M-${g.field_length / 2 - g.penalty_spot_from_field_line_dist - g.line_width} 0 a ${1 * g.line_width} ${1 * g.line_width} 0 0 1 ${2 * g.line_width} 0 a ${1 * g.line_width} ${1 * g.line_width} 0 0 1-${2 * g.line_width} 0\n`
-
     dField += `M ${g.field_length / 2 - g.penalty_spot_from_field_line_dist - g.line_width} 0 a ${1 * g.line_width} ${1 * g.line_width} 0 0 1-${2 * g.line_width} 0 a ${1 * g.line_width} ${1 * g.line_width} 0 0 1 ${2 * g.line_width} 0\n`
-
     dField += `z`
 
     let dLeftGoal = `M-${g.field_length / 2}-${g.goal_width / 2 + g.goal_wall_width / 2}
@@ -153,6 +145,11 @@ class Field extends React.Component {
 
     return (
       <React.Fragment>
+        <div className="info">
+          <div className="tip">
+            first half: stop
+          </div>
+        </div>
         <div className="field">
           <svg
             viewBox={this.viewBox()}
@@ -167,40 +164,60 @@ class Field extends React.Component {
               className="time-left"
               lengthAdjust="spacingAndGlyphs"
               x="2"
-              y={-g.field_width / 2 - 25}>
-            </text>
+              y={-g.field_width / 2 - 25}
+            >5:00</text>
             <text
               className="team-name left-name"
               textAnchor="start"
               lengthAdjust="spacingAndGlyphs"
               x={-g.field_length / 2 + 25}
-              y={-g.field_width / 2 + 25 + 250}>
-            </text>
+              y={-g.field_width / 2 + 25 + 250}>amarelo</text>
             <text
               className="team-name right-name"
               textAnchor="end"
               lengthAdjust="spacingAndGlyphs"
               x={g.field_length / 2 - 25}
-              y={-g.field_width / 2 + 25 + 250}>
-            </text>
+              y={-g.field_width / 2 + 25 + 250}>azul</text>
             <text
               className="team-name left-score"
               textAnchor="end"
               x={-25}
-              y={-g.field_width / 2 + 25 + 250}>
-            </text>
+              y={-g.field_width / 2 + 25 + 250}>2</text>
             <text
               className="team-name right-score"
               textAnchor="start"
               x={25}
-              y={-g.field_width / 2 + 25 + 250}>
-            </text>
+              y={-g.field_width / 2 + 25 + 250}>1</text>
+            <circle
+              className="ball active"
+              r={21.5}
+              cx={0}
+              cy={0}>
+            </circle>
             {paths}
             {texts}
           </svg>
         </div>
         <style jsx="true">{`
+          .info {
+            margin: 10px 50px;
+            position: absolute;
+            pointer-events: none;
+            z-index: 1;
+          }
+
+          .tip {
+            text-rendering: optimizeLegibility;
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.7);
+            font-size: 16px;
+            color: #030303;
+          }
+
           .field {
+            overflow: hidden;
+            height: 100%;
+            width: 100%;
+            position: absolute;
             background-color: #19770f;
           }
 
@@ -224,9 +241,21 @@ class Field extends React.Component {
             stroke: #d5c512;
           }
 
+          .time-left {
+            fill: rgba(0, 0, 0, 0.4);
+            font-size: 180px;
+            text-anchor: middle;
+            white-space: pre;
+          }
+
+          .team-name {
+            fill: rgba(0, 0, 0, 0.4);
+            font-size: 300px;
+          }
+
           .field-path {
             stroke: white;
-            fill: #ede528;
+            fill: #3276b1;
           }
 
           .field-text {
@@ -235,6 +264,12 @@ class Field extends React.Component {
             text-anchor: middle;
             dominant-baseline: central;
             font: bold 7em sans-serif;
+          }
+
+          .ball {
+            fill: #ff931f;
+            stroke: #c57a29;
+            stroke-width: 5;
           }
         `}</style>
       </React.Fragment>
