@@ -53,7 +53,18 @@ class Field extends React.Component {
 
     this.state = {
       robots: [
-        { x: 750, y: 500, angle: 0, text: '1', color: 'yellow' }
+        { x: -650, y: 400, angle: 180 - 30, text: '1', color: 'yellow' },
+        { x: -675, y: 200, angle: 180 - 15, text: '2', color: 'yellow' },
+        { x: -700, y: 0, angle: 180 + 0, text: '3', color: 'yellow' },
+        { x: -675, y: -200, angle: 180 + 15, text: '4', color: 'yellow' },
+        { x: -650, y: -400, angle: 180 + 30, text: '5', color: 'yellow' },
+        { x: -2900, y: 0, angle: 180, text: '6', color: 'yellow' },
+        { x: 500, y: -400, angle: -30, text: '1', color: 'blue' },
+        { x: 525, y: -200, angle: -15, text: '2', color: 'blue' },
+        { x: 550, y: 0, angle: 0, text: '3', color: 'blue' },
+        { x: 525, y: 200, angle: 15, text: '4', color: 'blue' },
+        { x: 500, y: 400, angle: 30, text: '5', color: 'blue' },
+        { x: 2750, y: 0, angle: 0, text: '6', color: 'blue' },
       ],
     }
   }
@@ -157,7 +168,7 @@ class Field extends React.Component {
       <React.Fragment>
         <path
           key={"path-" + i}
-          transform={`translate(${xTranslation} ${yTranslation}) rotate(${angleRotation} 990 -510)`}
+          transform={`translate(${xTranslation} ${yTranslation}) rotate(${angleRotation} 65 -10)`}
           d={this.pathFromD(d)}
           className={`field-path ${className}`}>
         </path>
@@ -308,11 +319,11 @@ class Field extends React.Component {
           }
 
           .team-yellow {
-            fill: #3276b1;
+            fill: #ede528;
           }
 
           .team-blue {
-            fill: #ede528;
+            fill: #3276b1;
           }
 
           .field-text {
