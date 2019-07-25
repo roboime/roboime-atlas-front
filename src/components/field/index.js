@@ -193,11 +193,19 @@ class Field extends React.Component {
 
   render() {
     const paths = this.state.field.paths.map((p, i) => {
+      let className
+
+      if (p.fill === "yellow") {
+        className = "team-yellow"
+      } else {
+        className = "team-blue"
+      }
+
       return (
         <path
           key={"path-" + i}
           d={this.pathFromD(p.d)}
-          className="field-path">
+          className={`field-path ${className}`}>
         </path>
       )
     })
@@ -326,7 +334,14 @@ class Field extends React.Component {
 
           .field-path {
             stroke: white;
+          }
+
+          .team-yellow {
             fill: #3276b1;
+          }
+
+          .team-blue {
+            fill: #ede528;
           }
 
           .field-text {
