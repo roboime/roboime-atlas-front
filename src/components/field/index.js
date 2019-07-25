@@ -52,37 +52,9 @@ class Field extends React.Component {
     super(props)
 
     this.state = {
-      field: {
-        paths: [
-          {
-            d: [
-              {
-                type: 'M',
-                args: [925, -550]
-              },
-              {
-                type: 'A',
-                args: [90, 90, 0, 1, 1, 925, -450]
-              },
-              {
-                type: 'L',
-                args: [925, -550]
-              }
-            ],
-            stroke: 'black',
-            strokeWidth: '10',
-            fill: 'yellow',
-            fillOpacity: 1
-          }
-        ],
-        texts: [
-          {
-            text: '1',
-            p: { x: 990, y: -510 },
-            fill: 'black',
-          }
-        ]
-      }
+      robots: [
+        { x: 750, y: 500, angle: 0, text: '1', color: 'yellow' }
+      ],
     }
   }
 
@@ -94,20 +66,6 @@ class Field extends React.Component {
       + ' ' + - (inner_height / 2)
       + ' ' + inner_width
       + ' ' + inner_height
-  }
-
-  pathFromD(pd) {
-    let d = ''
-
-    for (let s of pd) {
-      d += s.type
-
-      for (let a of s.args) {
-        d += ' ' + a
-      }
-    }
-
-    return d
   }
 
   cmd2txt(c) {
@@ -191,35 +149,49 @@ class Field extends React.Component {
     }
   }
 
-  render() {
-    const paths = this.state.field.paths.map((p, i) => {
-      let className
+  createRobot(i, xTranslation, yTranslation, angleRotation, text, className) {
+    const d = [{ type: 'M', args: [0, -50] }, { type: 'A', args: [90, 90, 0, 1, 1, 0, 50] }, { type: 'L', args: [0, -50] }]
+    const p = { x: 65, y: -10 }
 
-      if (p.fill === "yellow") {
-        className = "team-yellow"
-      } else {
-        className = "team-blue"
-      }
-
-      return (
+    return (
+      <React.Fragment>
         <path
           key={"path-" + i}
-          d={this.pathFromD(p.d)}
+          transform={`translate(${xTranslation} ${yTranslation}) rotate(${angleRotation} 990 -510)`}
+          d={this.pathFromD(d)}
           className={`field-path ${className}`}>
         </path>
-      )
-    })
-
-    const texts = this.state.field.texts.map((t, i) => {
-      return (
         <text
           key={"text-" + i}
-          x={t.p.x}
-          y={t.p.y}
+          transform={`translate(${xTranslation} ${yTranslation})`}
+          x={p.x}
+          y={p.y}
           className="field-text">
-          {t.text}
+          {text}
         </text>
-      )
+      </React.Fragment>
+    )
+  }
+
+  pathFromD(pd) {
+    let d = ''
+
+    for (let s of pd) {
+      d += s.type
+
+      for (let a of s.args) {
+        d += ' ' + a
+      }
+    }
+
+    return d
+  }
+
+  render() {
+    const robots = this.state.robots.map((r, i) => {
+      let className = "team-" + r.color
+
+      return this.createRobot(i, r.x, r.y, r.angle, r.text, className)
     })
 
     return (
@@ -273,8 +245,7 @@ class Field extends React.Component {
               cx={0}
               cy={0}>
             </circle>
-            {paths}
-            {texts}
+            {robots}
           </svg>
         </div>
         <style jsx="true">{`
