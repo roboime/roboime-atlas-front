@@ -1,4 +1,6 @@
 import React from 'react'
+import {Timestamp} from '../../protos/ssl/messages_robocup_ssl_wrapper_pb'
+import {RoboIMEAtlasClient} from '../../protos/ssl/messages_robocup_ssl_wrapper_pb_service'
 
 const g = {
   line_width: 10,
@@ -47,18 +49,37 @@ const dRightGoal = `M ${g.field_length / 2}-${g.goal_width / 2 + g.goal_wall_wid
   h-${g.goal_depth}
   z`
 
-class Field extends React.Component {
-  constructor(props) {
+interface IFieldState {
+  yellowRobots: {
+    x: number | undefined
+    y: number | undefined
+    angle: number | undefined
+    text: string | undefined
+    color: string
+  }[]
+
+  blueRobots: {
+    x: number | undefined
+    y: number | undefined
+    angle: number | undefined
+    text: string | undefined
+    color: string
+  }[]
+}
+class Field extends React.Component<{}, IFieldState> {
+  constructor(props: {}) {
     super(props)
 
     this.state = {
-      robots: [
+      yellowRobots: [
         { x: -650, y: 400, angle: 180 - 30, text: '1', color: 'yellow' },
         { x: -675, y: 200, angle: 180 - 15, text: '2', color: 'yellow' },
         { x: -700, y: 0, angle: 180 + 0, text: '3', color: 'yellow' },
         { x: -675, y: -200, angle: 180 + 15, text: '4', color: 'yellow' },
         { x: -650, y: -400, angle: 180 + 30, text: '5', color: 'yellow' },
         { x: -2900, y: 0, angle: 180, text: '6', color: 'yellow' },
+      ],
+      blueRobots: [
         { x: 500, y: -400, angle: -30, text: '1', color: 'blue' },
         { x: 525, y: -200, angle: -15, text: '2', color: 'blue' },
         { x: 550, y: 0, angle: 0, text: '3', color: 'blue' },
@@ -79,7 +100,7 @@ class Field extends React.Component {
       + ' ' + inner_height
   }
 
-  cmd2txt(c) {
+  cmd2txt(c: number) {
     switch (c) {
       case 0: return "halt"
       // Robots must keep 50 cm from the ball.
@@ -118,7 +139,7 @@ class Field extends React.Component {
     }
   }
 
-  stg2txt(s) {
+  stg2txt(s: any) {
     switch (s) {
       // The first half is about to start.
       // A kickoff is called within this stage.
@@ -160,7 +181,7 @@ class Field extends React.Component {
     }
   }
 
-  createRobot(i, xTranslation, yTranslation, angleRotation, text, className) {
+  createRobot(i: any, xTranslation: any, yTranslation: any, angleRotation: any, text: any, className: any) {
     const d = [{ type: 'M', args: [0, -50] }, { type: 'A', args: [90, 90, 0, 1, 1, 0, 50] }, { type: 'L', args: [0, -50] }]
     const p = { x: 65, y: -10 }
 
@@ -184,7 +205,7 @@ class Field extends React.Component {
     )
   }
 
-  pathFromD(pd) {
+  pathFromD(pd: any) {
     let d = ''
 
     for (let s of pd) {
@@ -198,12 +219,77 @@ class Field extends React.Component {
     return d
   }
 
+  getFrame() {
+    var timestamp = new Timestamp()
+    const client = new RoboIMEAtlasClient("https://localhost:9090")
+
+    var stream = client.getFrame(timestamp)
+    stream.on("data", (resp) => {
+      const frame = resp.getDetection()
+      const geometry = resp.getGeometry()
+
+      if (geometry) { 
+        console.log(geometry)
+      }
+      if (frame !== undefined) {
+        var robots = Array<{}>()
+        const yellow = frame.getRobotsYellowList()
+        const blue = frame.getRobotsBlueList()
+
+        const yellowDicts = yellow.map(function(robot) {
+          return {
+            x: robot.getX(),
+            y: robot.getY(),
+            angle: robot.getOrientation(),
+            text: String(robot.getRobotId()),
+            color: 'yellow'
+          }
+        },)
+        const blueDicts = blue.map(function (robot) {
+          return {
+            x: robot.getX(),
+            y: robot.getY(),
+            angle: robot.getOrientation(),
+            text: String(robot.getRobotId()),
+            color: 'blue'
+          }
+        },)
+
+        var blues = this.state.blueRobots
+        var yellows = this.state.yellowRobots
+        if (blueDicts.length !== 0){
+          blues = blueDicts
+        }
+        if (yellowDicts.length !== 0) {
+          yellows = yellowDicts
+        }
+
+        this.setState({
+          yellowRobots: yellows,
+          blueRobots: blues
+        })
+
+      }
+    })
+    stream.on("status", (status) => {
+    })
+  }
+
   render() {
-    const robots = this.state.robots.map((r, i) => {
+    this.getFrame()
+
+    const yellowRobots = this.state.yellowRobots.map((r: any, i:any) => {
       let className = "team-" + r.color
 
       return this.createRobot(i, r.x, r.y, r.angle, r.text, className)
     })
+    const blueRobots = this.state.blueRobots.map((r: any, i:any) => {
+      let className = "team-" + r.color
+
+      return this.createRobot(i, r.x, r.y, r.angle, r.text, className)
+    })
+
+    var robots = blueRobots.concat(yellowRobots)
 
     return (
       <React.Fragment>
@@ -259,7 +345,7 @@ class Field extends React.Component {
             {robots}
           </svg>
         </div>
-        <style jsx="true">{`
+        <style>{`
           .info {
             margin: 10px 50px;
             position: absolute;
