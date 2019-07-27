@@ -65,10 +65,16 @@ interface IFieldState {
     text: string | undefined
     color: string
   }[]
+
+  balls: {
+    x: number | undefined
+    y: number | undefined
+  }[]
 }
 class Field extends React.Component<{}, IFieldState> {
   constructor(props: {}) {
     super(props)
+    this.update()
 
     this.state = {
       yellowRobots: [
@@ -87,6 +93,9 @@ class Field extends React.Component<{}, IFieldState> {
         { x: 500, y: 400, angle: 30, text: '5', color: 'blue' },
         { x: 2750, y: 0, angle: 0, text: '6', color: 'blue' },
       ],
+      balls: [
+        {x: 0, y:0 },
+      ]
     }
   }
 
@@ -205,6 +214,19 @@ class Field extends React.Component<{}, IFieldState> {
     )
   }
 
+  createBall(x: number, y: number) {
+    return(
+      <React.Fragment>
+        <circle
+          className="ball active"
+          r={21.5}
+          cx={x}
+          cy={y}>
+        </circle>
+      </React.Fragment>
+    )
+  }
+
   pathFromD(pd: any) {
     let d = ''
 
@@ -223,18 +245,19 @@ class Field extends React.Component<{}, IFieldState> {
     var timestamp = new Timestamp()
     const client = new RoboIMEAtlasClient("https://localhost:9090")
 
-    var stream = client.getFrame(timestamp)
+    var stream
+    try {
+      stream = client.getFrame(timestamp)
+    } catch(e) {
+      return
+    }
     stream.on("data", (resp) => {
       const frame = resp.getDetection()
-      const geometry = resp.getGeometry()
-
-      if (geometry) { 
-        console.log(geometry)
-      }
       if (frame !== undefined) {
-        var robots = Array<{}>()
         const yellow = frame.getRobotsYellowList()
         const blue = frame.getRobotsBlueList()
+        const ball = frame.getBallsList()
+        console.log(yellow.length, blue.length, ball.length)
 
         const yellowDicts = yellow.map(function(robot) {
           return {
@@ -254,7 +277,15 @@ class Field extends React.Component<{}, IFieldState> {
             color: 'blue'
           }
         },)
+        const ballDicts = ball.map(function(ball) {
+          return {
+            x: ball.getX(),
+            y: ball.getY()
+          }
+        })
 
+
+        var balls = this.state.balls
         var blues = this.state.blueRobots
         var yellows = this.state.yellowRobots
         if (blueDicts.length !== 0){
@@ -263,10 +294,14 @@ class Field extends React.Component<{}, IFieldState> {
         if (yellowDicts.length !== 0) {
           yellows = yellowDicts
         }
+        if (ballDicts.length !== 0) {
+          balls = ballDicts
+        }
 
         this.setState({
           yellowRobots: yellows,
-          blueRobots: blues
+          blueRobots: blues,
+          balls: balls,
         })
 
       }
@@ -275,9 +310,14 @@ class Field extends React.Component<{}, IFieldState> {
     })
   }
 
-  render() {
-    this.getFrame()
+  async update() {
+    while (true) {
+      this.getFrame()
+      await delay(100)
+    }
+  }
 
+  render() {
     const yellowRobots = this.state.yellowRobots.map((r: any, i:any) => {
       let className = "team-" + r.color
 
@@ -287,6 +327,10 @@ class Field extends React.Component<{}, IFieldState> {
       let className = "team-" + r.color
 
       return this.createRobot(i, r.x, r.y, r.angle, r.text, className)
+    })
+
+    const balls = this.state.balls.map((r:any) => {
+      return this.createBall(r.x, r.y)
     })
 
     var robots = blueRobots.concat(yellowRobots)
@@ -336,12 +380,7 @@ class Field extends React.Component<{}, IFieldState> {
               textAnchor="start"
               x={25}
               y={-g.field_width / 2 + 25 + 250}>1</text>
-            <circle
-              className="ball active"
-              r={21.5}
-              cx={0}
-              cy={0}>
-            </circle>
+            {balls}
             {robots}
           </svg>
         </div>
@@ -429,6 +468,11 @@ class Field extends React.Component<{}, IFieldState> {
       </React.Fragment>
     )
   }
+}
+
+
+function delay(ms: number) {
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 export default Field
