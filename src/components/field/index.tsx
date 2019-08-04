@@ -4,8 +4,8 @@ import {RoboIMEAtlasClient} from '../../protos/ssl/messages_robocup_ssl_wrapper_
 
 const g = {
   line_width: 10,
-  field_length: 6000,
-  field_width: 4000,
+  field_length: 9000,
+  field_width: 6000,
   boundary_width: 250,
   referee_width: 500,
   goal_width: 700,
@@ -260,19 +260,21 @@ class Field extends React.Component<{}, IFieldState> {
         console.log(yellow.length, blue.length, ball.length)
 
         const yellowDicts = yellow.map(function(robot) {
+          const yaw = robot.getOrientation()
           return {
             x: robot.getX(),
             y: robot.getY(),
-            angle: robot.getOrientation(),
+            angle: yaw? yaw * -180 / 3.14 : yaw,
             text: String(robot.getRobotId()),
             color: 'yellow'
           }
         },)
         const blueDicts = blue.map(function (robot) {
+          const yaw = robot.getOrientation()
           return {
             x: robot.getX(),
             y: robot.getY(),
-            angle: robot.getOrientation(),
+            angle: yaw? yaw * -180 / 3.14 : yaw,
             text: String(robot.getRobotId()),
             color: 'blue'
           }
@@ -312,8 +314,12 @@ class Field extends React.Component<{}, IFieldState> {
 
   async update() {
     while (true) {
-      this.getFrame()
-      await delay(100)
+      try {
+        this.getFrame()
+      } catch(e) {
+        return
+      }
+      await delay(50)
     }
   }
 
