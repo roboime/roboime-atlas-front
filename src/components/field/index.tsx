@@ -49,22 +49,18 @@ const dRightGoal = `M ${g.field_length / 2}-${g.goal_width / 2 + g.goal_wall_wid
   h-${g.goal_depth}
   z`
 
-interface IFieldState {
-  yellowRobots: {
-    x: number | undefined
-    y: number | undefined
-    angle: number | undefined
-    text: string | undefined
-    color: string
-  }[]
+interface Robot{
+  x: number | undefined
+  y: number | undefined
+  angle: number | undefined
+  text: string | undefined
+  color: string
+}
 
-  blueRobots: {
-    x: number | undefined
-    y: number | undefined
-    angle: number | undefined
-    text: string | undefined
-    color: string
-  }[]
+
+interface IFieldState {
+  yellowRobots: {[id: number ]: Robot}
+  blueRobots: {[id: number ]: Robot}
 
   balls: {
     x: number | undefined
@@ -78,20 +74,8 @@ class Field extends React.Component<{}, IFieldState> {
 
     this.state = {
       yellowRobots: [
-        { x: -650, y: 400, angle: 180 - 30, text: '1', color: 'yellow' },
-        { x: -675, y: 200, angle: 180 - 15, text: '2', color: 'yellow' },
-        { x: -700, y: 0, angle: 180 + 0, text: '3', color: 'yellow' },
-        { x: -675, y: -200, angle: 180 + 15, text: '4', color: 'yellow' },
-        { x: -650, y: -400, angle: 180 + 30, text: '5', color: 'yellow' },
-        { x: -4400, y: 0, angle: 180, text: '6', color: 'yellow' },
       ],
       blueRobots: [
-        { x: 500, y: -400, angle: -30, text: '1', color: 'blue' },
-        { x: 525, y: -200, angle: -15, text: '2', color: 'blue' },
-        { x: 550, y: 0, angle: 0, text: '3', color: 'blue' },
-        { x: 525, y: 200, angle: 15, text: '4', color: 'blue' },
-        { x: 500, y: 400, angle: 30, text: '5', color: 'blue' },
-        { x: 4250, y: 0, angle: 0, text: '6', color: 'blue' },
       ],
       balls: [
         {x: 0, y:0 },
@@ -259,26 +243,38 @@ class Field extends React.Component<{}, IFieldState> {
         const ball = frame.getBallsList()
         console.log(yellow.length, blue.length, ball.length)
 
-        const yellowDicts = yellow.map(function(robot) {
-          const yaw = robot.getOrientation()
-          return {
-            x: robot.getX(),
-            y: robot.getY(),
-            angle: yaw? yaw * -180 / 3.14 : yaw,
-            text: String(robot.getRobotId()),
+        var yellowBots: {[id: number]: Robot} = this.state.yellowRobots
+        for (let i=0; i<yellow.length; i++) {
+          const bot = yellow[i]
+          const id = bot.getRobotId()
+          if (id === undefined) continue
+
+          const yaw = bot.getOrientation()
+          yellowBots[id] = {
+            x: bot.getX(),
+            y: bot.getY(),
+            angle: yaw? (180*(yaw)/ 3.14)+180 : yaw,
+            text: String(bot.getRobotId()),
             color: 'yellow'
           }
-        },)
-        const blueDicts = blue.map(function (robot) {
-          const yaw = robot.getOrientation()
-          return {
-            x: robot.getX(),
-            y: robot.getY(),
-            angle: yaw? yaw * -180 / 3.14 : yaw,
-            text: String(robot.getRobotId()),
+        }
+
+        var blueBots: {[id: number]: Robot} = this.state.blueRobots
+        for (let i=0; i<blue.length; i++) {
+          const bot = blue[i]
+          const id = bot.getRobotId()
+          if (id === undefined) continue
+
+          const yaw = bot.getOrientation()
+          blueBots[id] = {
+            x: bot.getX(),
+            y: bot.getY(),
+            angle: yaw? (180*(yaw)/ 3.14)+180 : yaw,
+            text: String(bot.getRobotId()),
             color: 'blue'
           }
-        },)
+        }
+
         const ballDicts = ball.map(function(ball) {
           return {
             x: ball.getX(),
@@ -290,11 +286,11 @@ class Field extends React.Component<{}, IFieldState> {
         var balls = this.state.balls
         var blues = this.state.blueRobots
         var yellows = this.state.yellowRobots
-        if (blueDicts.length !== 0){
-          blues = blueDicts
+        if (Object.keys(blueBots).length !== 0){
+          blues = blueBots
         }
-        if (yellowDicts.length !== 0) {
-          yellows = yellowDicts
+        if (Object.keys(yellowBots).length !== 0) {
+          yellows = yellowBots
         }
         if (ballDicts.length !== 0) {
           balls = ballDicts
@@ -319,21 +315,30 @@ class Field extends React.Component<{}, IFieldState> {
       } catch(e) {
         return
       }
-      await delay(50)
+      await delay(10)
     }
   }
 
   render() {
-    const yellowRobots = this.state.yellowRobots.map((r: any, i:any) => {
+    const blueRobots = Object.values(this.state.blueRobots).map(function(r:any,i:any) {
       let className = "team-" + r.color
-
-      return this.createRobot(i, r.x, r.y, r.angle, r.text, className)
+      return createRobot(i, r.x, r.y, r.angle, r.text, className)
     })
-    const blueRobots = this.state.blueRobots.map((r: any, i:any) => {
+    const yellowRobots = Object.values(this.state.yellowRobots).map(function(r:any,i:any) {
       let className = "team-" + r.color
-
-      return this.createRobot(i, r.x, r.y, r.angle, r.text, className)
+      return createRobot(i, r.x, r.y, r.angle, r.text, className)
     })
+
+    // const yellowRobots = this.state.yellowRobots.map((r: any, i:any) => {
+    //   let className = "team-" + r.color
+
+    //   return this.createRobot(i, r.x, r.y, r.angle, r.text, className)
+    // })
+    // const blueRobots = this.state.blueRobots.map((r: any, i:any) => {
+    //   let className = "team-" + r.color
+
+    //   return this.createRobot(i, r.x, r.y, r.angle, r.text, className)
+    // })
 
     const balls = this.state.balls.map((r:any) => {
       return this.createBall(r.x, r.y)
@@ -480,5 +485,43 @@ class Field extends React.Component<{}, IFieldState> {
 function delay(ms: number) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
+
+function createRobot(i: any, xTranslation: any, yTranslation: any, angleRotation: any, text: any, className: any) {
+  const d = [{ type: 'M', args: [0, -50] }, { type: 'A', args: [90, 90, 0, 1, 1, 0, 50] }, { type: 'L', args: [0, -50] }]
+  const p = { x: 65, y: -10 }
+
+  return (
+    <React.Fragment>
+      <path
+        key={"path-" + i}
+        transform={`translate(${xTranslation} ${yTranslation}) rotate(${angleRotation} 65 -10)`}
+        d={pathFromD(d)}
+        className={`field-path ${className}`}>
+      </path>
+      <text
+        key={"text-" + i}
+        transform={`translate(${xTranslation} ${yTranslation})`}
+        x={p.x}
+        y={p.y}
+        className="field-text">
+        {text}
+      </text>
+    </React.Fragment>
+  )
+}
+
+function pathFromD(pd: any) {
+    let d = ''
+
+    for (let s of pd) {
+      d += s.type
+
+      for (let a of s.args) {
+        d += ' ' + a
+      }
+    }
+
+    return d
+  }
 
 export default Field
