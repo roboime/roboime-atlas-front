@@ -83,7 +83,7 @@ class Field extends React.Component<{}, IFieldState> {
         { x: -700, y: 0, angle: 180 + 0, text: '3', color: 'yellow' },
         { x: -675, y: -200, angle: 180 + 15, text: '4', color: 'yellow' },
         { x: -650, y: -400, angle: 180 + 30, text: '5', color: 'yellow' },
-        { x: -2900, y: 0, angle: 180, text: '6', color: 'yellow' },
+        { x: -4400, y: 0, angle: 180, text: '6', color: 'yellow' },
       ],
       blueRobots: [
         { x: 500, y: -400, angle: -30, text: '1', color: 'blue' },
@@ -91,7 +91,7 @@ class Field extends React.Component<{}, IFieldState> {
         { x: 550, y: 0, angle: 0, text: '3', color: 'blue' },
         { x: 525, y: 200, angle: 15, text: '4', color: 'blue' },
         { x: 500, y: 400, angle: 30, text: '5', color: 'blue' },
-        { x: 2750, y: 0, angle: 0, text: '6', color: 'blue' },
+        { x: 4250, y: 0, angle: 0, text: '6', color: 'blue' },
       ],
       balls: [
         {x: 0, y:0 },
@@ -100,8 +100,8 @@ class Field extends React.Component<{}, IFieldState> {
   }
 
   viewBox() {
-    const inner_width = 7500
-    const inner_height = 5500
+    const inner_width = 8500
+    const inner_height = 6500
 
     return -(inner_width / 2)
       + ' ' + - (inner_height / 2)
