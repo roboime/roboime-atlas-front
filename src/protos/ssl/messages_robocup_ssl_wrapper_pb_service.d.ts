@@ -9,13 +9,23 @@ type RoboIMEAtlasGetFrame = {
   readonly service: typeof RoboIMEAtlas;
   readonly requestStream: false;
   readonly responseStream: true;
-  readonly requestType: typeof messages_robocup_ssl_wrapper_pb.Timestamp;
+  readonly requestType: typeof messages_robocup_ssl_wrapper_pb.FrameRequest;
   readonly responseType: typeof messages_robocup_ssl_wrapper_pb.SSL_WrapperPacket;
+};
+
+type RoboIMEAtlasGetActiveMatches = {
+  readonly methodName: string;
+  readonly service: typeof RoboIMEAtlas;
+  readonly requestStream: false;
+  readonly responseStream: false;
+  readonly requestType: typeof messages_robocup_ssl_wrapper_pb.ActiveMatchesRequest;
+  readonly responseType: typeof messages_robocup_ssl_wrapper_pb.MatchesPacket;
 };
 
 export class RoboIMEAtlas {
   static readonly serviceName: string;
   static readonly GetFrame: RoboIMEAtlasGetFrame;
+  static readonly GetActiveMatches: RoboIMEAtlasGetActiveMatches;
 }
 
 export type ServiceError = { message: string, code: number; metadata: grpc.Metadata }
@@ -50,6 +60,15 @@ export class RoboIMEAtlasClient {
   readonly serviceHost: string;
 
   constructor(serviceHost: string, options?: grpc.RpcOptions);
-  getFrame(requestMessage: messages_robocup_ssl_wrapper_pb.Timestamp, metadata?: grpc.Metadata): ResponseStream<messages_robocup_ssl_wrapper_pb.SSL_WrapperPacket>;
+  getFrame(requestMessage: messages_robocup_ssl_wrapper_pb.FrameRequest, metadata?: grpc.Metadata): ResponseStream<messages_robocup_ssl_wrapper_pb.SSL_WrapperPacket>;
+  getActiveMatches(
+    requestMessage: messages_robocup_ssl_wrapper_pb.ActiveMatchesRequest,
+    metadata: grpc.Metadata,
+    callback: (error: ServiceError|null, responseMessage: messages_robocup_ssl_wrapper_pb.MatchesPacket|null) => void
+  ): UnaryResponse;
+  getActiveMatches(
+    requestMessage: messages_robocup_ssl_wrapper_pb.ActiveMatchesRequest,
+    callback: (error: ServiceError|null, responseMessage: messages_robocup_ssl_wrapper_pb.MatchesPacket|null) => void
+  ): UnaryResponse;
 }
 

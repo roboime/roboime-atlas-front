@@ -1,5 +1,5 @@
 import React from 'react'
-import {Timestamp} from '../../protos/ssl/messages_robocup_ssl_wrapper_pb'
+import {FrameRequest} from '../../protos/ssl/messages_robocup_ssl_wrapper_pb'
 import {RoboIMEAtlasClient} from '../../protos/ssl/messages_robocup_ssl_wrapper_pb_service'
 
 const g = {
@@ -226,12 +226,13 @@ class Field extends React.Component<{}, IFieldState> {
   }
 
   getFrame() {
-    var timestamp = new Timestamp()
+    var req = new FrameRequest()
+    req.setMatchId(1)
     const client = new RoboIMEAtlasClient("https://localhost:9090")
 
     var stream
     try {
-      stream = client.getFrame(timestamp)
+      stream = client.getFrame(req)
     } catch(e) {
       return
     }
