@@ -1,5 +1,6 @@
 import React from 'react'
-import {FrameRequest} from '../../protos/ssl/messages_robocup_ssl_wrapper_pb'
+import {FrameRequest, MatchesPacket} from '../../protos/ssl/messages_robocup_ssl_wrapper_pb'
+import {ActiveMatchesRequest} from '../../protos/ssl/messages_robocup_ssl_wrapper_pb'
 import {RoboIMEAtlasClient} from '../../protos/ssl/messages_robocup_ssl_wrapper_pb_service'
 
 const g = {
@@ -230,6 +231,20 @@ class Field extends React.Component<{}, IFieldState> {
     req.setMatchId(1)
     const client = new RoboIMEAtlasClient("https://localhost:9090")
 
+// TODO: getting avaliable matches part
+//   var matchesReq = new ActiveMatchesRequest() 
+//   
+//   const matches = client.getActiveMatches(matchesReq, (err,resp) => {
+//     if (err) {
+//       console.log("Error: ", err)
+//     } else {
+//       let packet = resp as MatchesPacket
+//       for (let match of packet.getMatchList()) {
+//         console.log("match id", match.getMatchId())
+//       }
+//     }
+//   })
+
     var stream
     try {
       stream = client.getFrame(req)
@@ -242,7 +257,6 @@ class Field extends React.Component<{}, IFieldState> {
         const yellow = frame.getRobotsYellowList()
         const blue = frame.getRobotsBlueList()
         const ball = frame.getBallsList()
-        console.log(yellow.length, blue.length, ball.length)
 
         var yellowBots: {[id: number]: Robot} = this.state.yellowRobots
         for (let i=0; i<yellow.length; i++) {
