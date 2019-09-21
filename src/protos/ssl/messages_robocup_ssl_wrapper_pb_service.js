@@ -16,8 +16,17 @@ RoboIMEAtlas.GetFrame = {
   service: RoboIMEAtlas,
   requestStream: false,
   responseStream: true,
-  requestType: messages_robocup_ssl_wrapper_pb.Timestamp,
+  requestType: messages_robocup_ssl_wrapper_pb.FrameRequest,
   responseType: messages_robocup_ssl_wrapper_pb.SSL_WrapperPacket
+};
+
+RoboIMEAtlas.GetActiveMatches = {
+  methodName: "GetActiveMatches",
+  service: RoboIMEAtlas,
+  requestStream: false,
+  responseStream: false,
+  requestType: messages_robocup_ssl_wrapper_pb.ActiveMatchesRequest,
+  responseType: messages_robocup_ssl_wrapper_pb.MatchesPacket
 };
 
 exports.RoboIMEAtlas = RoboIMEAtlas;
@@ -61,6 +70,37 @@ RoboIMEAtlasClient.prototype.getFrame = function getFrame(requestMessage, metada
     },
     cancel: function () {
       listeners = null;
+      client.close();
+    }
+  };
+};
+
+RoboIMEAtlasClient.prototype.getActiveMatches = function getActiveMatches(requestMessage, metadata, callback) {
+  if (arguments.length === 2) {
+    callback = arguments[1];
+  }
+  var client = grpc.unary(RoboIMEAtlas.GetActiveMatches, {
+    request: requestMessage,
+    host: this.serviceHost,
+    metadata: metadata,
+    transport: this.options.transport,
+    debug: this.options.debug,
+    onEnd: function (response) {
+      if (callback) {
+        if (response.status !== grpc.Code.OK) {
+          var err = new Error(response.statusMessage);
+          err.code = response.status;
+          err.metadata = response.trailers;
+          callback(err, null);
+        } else {
+          callback(null, response.message);
+        }
+      }
+    }
+  });
+  return {
+    cancel: function () {
+      callback = null;
       client.close();
     }
   };
