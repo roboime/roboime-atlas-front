@@ -3,6 +3,8 @@ import {FrameRequest, MatchesPacket} from '../../protos/ssl/messages_robocup_ssl
 import {ActiveMatchesRequest} from '../../protos/ssl/messages_robocup_ssl_wrapper_pb'
 import {RoboIMEAtlasClient} from '../../protos/ssl/messages_robocup_ssl_wrapper_pb_service'
 
+import Dropdown from 'react-bootstrap/Dropdown'
+
 const g = {
   line_width: 10,
   field_length: 9000,
@@ -58,7 +60,6 @@ interface Robot{
   color: string
 }
 
-
 interface IFieldState {
   yellowRobots: {[id: number ]: Robot}
   blueRobots: {[id: number ]: Robot}
@@ -67,9 +68,17 @@ interface IFieldState {
     x: number | undefined
     y: number | undefined
   }[]
+
+  matches: {
+    id: number | undefined
+    name: string | undefined
+  }[]
+
+  matchID: string
 }
+
 class Field extends React.Component<{}, IFieldState> {
-  constructor(props: {}) {
+  constructor(props: { match: { params: { matchID: string }}}) {
     super(props)
     this.update()
 
@@ -80,7 +89,15 @@ class Field extends React.Component<{}, IFieldState> {
       ],
       balls: [
         {x: 0, y:0 },
-      ]
+      ],
+      matches: [{
+        id: 1,
+        name: "Potato x Batata"
+      },{
+        id: 2,
+        name: "IME x FEI"
+      }],
+      matchID: props.match.params.matchID
     }
   }
 
@@ -231,19 +248,29 @@ class Field extends React.Component<{}, IFieldState> {
     req.setMatchId(1)
     const client = new RoboIMEAtlasClient("https://localhost:9090")
 
-// TODO: getting avaliable matches part
-//   var matchesReq = new ActiveMatchesRequest() 
-//   
-//   const matches = client.getActiveMatches(matchesReq, (err,resp) => {
-//     if (err) {
-//       console.log("Error: ", err)
-//     } else {
-//       let packet = resp as MatchesPacket
-//       for (let match of packet.getMatchList()) {
-//         console.log("match id", match.getMatchId())
-//       }
-//     }
-//   })
+    const matchesReq = new ActiveMatchesRequest() 
+
+    var matches: Array<{ id: number, name: string }> = []
+    client.getActiveMatches(matchesReq, (err,resp) => {
+      if (err) {
+        console.log("Error: ", err)
+      } else {
+        let packet = resp as MatchesPacket
+        for (let match of packet.getMatchList()) {
+          console.log("match id", match.getMatchId())
+          console.log("match name", match.getMatchName())
+
+          matches.push({
+            id: match.getMatchId(),
+            name: match.getMatchName(), 
+          })
+        }
+
+        this.setState({
+          matches: matches,
+        })
+      }
+    })
 
     var stream
     try {
@@ -251,6 +278,7 @@ class Field extends React.Component<{}, IFieldState> {
     } catch(e) {
       return
     }
+
     stream.on("data", (resp) => {
       const frame = resp.getDetection()
       if (frame !== undefined) {
@@ -259,9 +287,10 @@ class Field extends React.Component<{}, IFieldState> {
         const ball = frame.getBallsList()
 
         var yellowBots: {[id: number]: Robot} = this.state.yellowRobots
-        for (let i=0; i<yellow.length; i++) {
+        for (let i = 0; i < yellow.length; i++) {
           const bot = yellow[i]
           const id = bot.getRobotId()
+          
           if (id === undefined) continue
 
           const yaw = bot.getOrientation()
@@ -275,9 +304,10 @@ class Field extends React.Component<{}, IFieldState> {
         }
 
         var blueBots: {[id: number]: Robot} = this.state.blueRobots
-        for (let i=0; i<blue.length; i++) {
+        for (let i = 0; i < blue.length; i++) {
           const bot = blue[i]
           const id = bot.getRobotId()
+          
           if (id === undefined) continue
 
           const yaw = bot.getOrientation()
@@ -316,9 +346,9 @@ class Field extends React.Component<{}, IFieldState> {
           blueRobots: blues,
           balls: balls,
         })
-
       }
     })
+
     stream.on("status", (status) => {
     })
   }
@@ -339,6 +369,7 @@ class Field extends React.Component<{}, IFieldState> {
       let className = "team-" + r.color
       return createRobot(i, r.x, r.y, r.angle, r.text, className)
     })
+
     const yellowRobots = Object.values(this.state.yellowRobots).map(function(r:any,i:any) {
       let className = "team-" + r.color
       return createRobot(i, r.x, r.y, r.angle, r.text, className)
@@ -361,8 +392,22 @@ class Field extends React.Component<{}, IFieldState> {
 
     var robots = blueRobots.concat(yellowRobots)
 
+    const dropdownItens = this.state.matches.map((match) => {
+      return (
+        <Dropdown.Item href={`${match.id}`} key={match.id}>{match.id} - {match.name}</Dropdown.Item>
+      )
+    })
+
     return (
       <React.Fragment>
+        <Dropdown>
+          <Dropdown.Toggle variant="success" id="dropdown-basic">
+            Selecionar Partida
+          </Dropdown.Toggle>
+          <Dropdown.Menu>
+            {dropdownItens}
+          </Dropdown.Menu>
+        </Dropdown>
         <div className="info">
           <div className="tip">
             first half: stop
@@ -411,6 +456,12 @@ class Field extends React.Component<{}, IFieldState> {
           </svg>
         </div>
         <style>{`
+          .dropdown {
+            position: absolute;
+            z-index: 10;
+            right: 10px;
+          }
+
           .info {
             margin: 10px 50px;
             position: absolute;
