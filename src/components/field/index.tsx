@@ -273,6 +273,8 @@ class Field extends React.Component<{}, IFieldState> {
           })
         }
 
+        matches = matches.sort((a, b) => a.id > b.id ? 1 : -1)
+
         this.setState({
           matches: matches,
         })
