@@ -4,6 +4,7 @@ import {ActiveMatchesRequest} from '../../protos/ssl/messages_robocup_ssl_wrappe
 import {RoboIMEAtlasClient} from '../../protos/ssl/messages_robocup_ssl_wrapper_pb_service'
 
 import Dropdown from 'react-bootstrap/Dropdown'
+import { SSL_Referee } from '../../protos/ssl/referee_pb';
 
 const client = new RoboIMEAtlasClient("https://localhost:9090")
 
@@ -77,12 +78,17 @@ interface IFieldState {
   }[]
 
   matchID: string
+
+  // TODO: define referee properly
+  ref: SSL_Referee.AsObject
 }
 
 class Field extends React.Component<{}, IFieldState> {
   constructor(props: { match: { params: { matchID: string }}}) {
     super(props)
     this.updateFrame()
+    this.updateRefbox()
+    this.updateMatches()
 
     this.state = {
       yellowRobots: [
@@ -99,7 +105,8 @@ class Field extends React.Component<{}, IFieldState> {
         id: 2,
         name: "IME x FEI"
       }],
-      matchID: props.match.params.matchID
+      matchID: props.match.params.matchID,
+      ref: new SSL_Referee().toObject()
     }
   }
 
@@ -391,12 +398,34 @@ class Field extends React.Component<{}, IFieldState> {
 
   }
 
+  async updateRefbox() {
+    while (true) {
+      try {
+        this.getRefbox()
+      } catch(e) {
+        return
+      }
+      await delay(1000)
+    }
+  }
+
+  getRefbox() {
+    var req = new MatchInfoRequest()
+    req.setMatchId(1)
+    client.getMatchInfo(req, (err,resp) => {
+      if (resp != null) {
+        this.setState({
+          ref: resp.toObject(),
+        })
+      }
+    })
+  }
+
   render() {
     const blueRobots = Object.values(this.state.blueRobots).map(function(r:any,i:any) {
       let className = "team-" + r.color
       return createRobot(i, r.x, r.y, r.angle, r.text, className)
     })
-
     const yellowRobots = Object.values(this.state.yellowRobots).map(function(r:any,i:any) {
       let className = "team-" + r.color
       return createRobot(i, r.x, r.y, r.angle, r.text, className)
@@ -425,6 +454,15 @@ class Field extends React.Component<{}, IFieldState> {
       )
     })
 
+    const yellowName = this.state.ref.yellow.name
+    const blueName = this.state.ref.blue.name
+    const blueScore = this.state.ref.blue.score
+    const yellowScore = this.state.ref.yellow.score
+    // TODO: convert time to minute:second
+    const time = this.state.ref.stageTimeLeft
+    const stage = this.stg2txt(this.state.ref.stage)
+    const command = this.cmd2txt(this.state.ref.command ? this.state.ref.command : 0)
+
     return (
       <React.Fragment>
         <Dropdown>
@@ -437,7 +475,7 @@ class Field extends React.Component<{}, IFieldState> {
         </Dropdown>
         <div className="info">
           <div className="tip">
-            first half: stop
+            {stage}: {command}
           </div>
         </div>
         <div className="field">
@@ -455,29 +493,29 @@ class Field extends React.Component<{}, IFieldState> {
               lengthAdjust="spacingAndGlyphs"
               x="2"
               y={-g.field_width / 2 - 25}
-            >5:00</text>
+            >{time}</text>
             <text
               className="team-name left-name"
               textAnchor="start"
               lengthAdjust="spacingAndGlyphs"
               x={-g.field_length / 2 + 25}
-              y={-g.field_width / 2 + 25 + 250}>amarelo</text>
+              y={-g.field_width / 2 + 25 + 250}>{yellowName}</text>
             <text
               className="team-name right-name"
               textAnchor="end"
               lengthAdjust="spacingAndGlyphs"
               x={g.field_length / 2 - 25}
-              y={-g.field_width / 2 + 25 + 250}>azul</text>
+              y={-g.field_width / 2 + 25 + 250}>{blueName}</text>
             <text
               className="team-name left-score"
               textAnchor="end"
               x={-25}
-              y={-g.field_width / 2 + 25 + 250}>2</text>
+              y={-g.field_width / 2 + 25 + 250}>{yellowScore}</text>
             <text
               className="team-name right-score"
               textAnchor="start"
               x={25}
-              y={-g.field_width / 2 + 25 + 250}>1</text>
+              y={-g.field_width / 2 + 25 + 250}>{blueScore}</text>
             {balls}
             {robots}
           </svg>
