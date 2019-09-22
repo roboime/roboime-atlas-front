@@ -5,6 +5,8 @@ import {RoboIMEAtlasClient} from '../../protos/ssl/messages_robocup_ssl_wrapper_
 
 import Dropdown from 'react-bootstrap/Dropdown'
 
+const client = new RoboIMEAtlasClient("https://localhost:9090")
+
 const g = {
   line_width: 10,
   field_length: 9000,
@@ -80,7 +82,7 @@ interface IFieldState {
 class Field extends React.Component<{}, IFieldState> {
   constructor(props: { match: { params: { matchID: string }}}) {
     super(props)
-    this.update()
+    this.updateFrame()
 
     this.state = {
       yellowRobots: [
@@ -244,43 +246,9 @@ class Field extends React.Component<{}, IFieldState> {
   }
 
   getFrame() {
+
     var req = new FrameRequest()
     req.setMatchId(1)
-    const client = new RoboIMEAtlasClient("https://localhost:9090")
-
-    const matchesReq = new ActiveMatchesRequest() 
-
-    var matches: Array<{ id: number, name: string }> = []
-    client.getActiveMatches(matchesReq, (err,resp) => {
-      if (err) {
-        console.log("Error: ", err)
-      } else {
-        let packet = resp as MatchesPacket
-        for (let match of packet.getMatchList()) {
-          console.log("match id", match.getMatchId())
-          console.log("match name", match.getMatchName())
-
-          // @TODO make this match info gathering another coroutine with lower update rate
-          // var matchInfoReq = new MatchInfoRequest()
-          // matchInfoReq.setMatchId(match.getMatchId())
-          // client.getMatchInfo(matchInfoReq, (err, resp) => {
-          //   console.log("referee: ", resp)
-          // })
-
-          matches.push({
-            id: match.getMatchId(),
-            name: match.getMatchName(), 
-          })
-        }
-
-        matches = matches.sort((a, b) => a.id > b.id ? 1 : -1)
-
-        this.setState({
-          matches: matches,
-        })
-      }
-    })
-
     var stream
     try {
       stream = client.getFrame(req)
@@ -356,13 +324,17 @@ class Field extends React.Component<{}, IFieldState> {
           balls: balls,
         })
       }
+      const geometry = resp.getGeometry()
+      if (geometry !== undefined) {
+        console.log("geometry ", geometry)
+      }
     })
 
     stream.on("status", (status) => {
     })
   }
 
-  async update() {
+  async updateFrame() {
     while (true) {
       try {
         this.getFrame()
@@ -371,6 +343,52 @@ class Field extends React.Component<{}, IFieldState> {
       }
       await delay(10)
     }
+  }
+
+  async updateMatches() {
+    while (true) {
+      try {
+        this.getActiveMatches()
+      } catch(e) {
+        return
+      }
+      await delay(1000)
+    }
+  }
+
+  getActiveMatches() {
+    const matchesReq = new ActiveMatchesRequest() 
+    var matches: Array<{ id: number, name: string }> = []
+    client.getActiveMatches(matchesReq, (err,resp) => {
+      if (err) {
+        console.log("Error: ", err)
+      } else {
+        let packet = resp as MatchesPacket
+        for (let match of packet.getMatchList()) {
+          console.log("match id", match.getMatchId())
+          console.log("match name", match.getMatchName())
+
+          // @TODO make this match info gathering another coroutine with lower updateFrame rate
+          // var matchInfoReq = new MatchInfoRequest()
+          // matchInfoReq.setMatchId(match.getMatchId())
+          // client.getMatchInfo(matchInfoReq, (err, resp) => {
+          //   console.log("referee: ", resp)
+          // })
+
+          matches.push({
+            id: match.getMatchId(),
+            name: match.getMatchName(), 
+          })
+        }
+
+        matches = matches.sort((a, b) => a.id > b.id ? 1 : -1)
+
+        this.setState({
+          matches: matches,
+        })
+      }
+    })
+
   }
 
   render() {
