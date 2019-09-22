@@ -4,6 +4,7 @@
 import * as jspb from "google-protobuf";
 import * as messages_robocup_ssl_detection_pb from "./messages_robocup_ssl_detection_pb";
 import * as messages_robocup_ssl_geometry_pb from "./messages_robocup_ssl_geometry_pb";
+import * as referee_pb from "./referee_pb";
 
 export class FrameRequest extends jspb.Message {
   getMatchId(): number;
@@ -38,6 +39,26 @@ export class ActiveMatchesRequest extends jspb.Message {
 
 export namespace ActiveMatchesRequest {
   export type AsObject = {
+  }
+}
+
+export class MatchInfoRequest extends jspb.Message {
+  getMatchId(): number;
+  setMatchId(value: number): void;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): MatchInfoRequest.AsObject;
+  static toObject(includeInstance: boolean, msg: MatchInfoRequest): MatchInfoRequest.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: MatchInfoRequest, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): MatchInfoRequest;
+  static deserializeBinaryFromReader(message: MatchInfoRequest, reader: jspb.BinaryReader): MatchInfoRequest;
+}
+
+export namespace MatchInfoRequest {
+  export type AsObject = {
+    matchId: number,
   }
 }
 

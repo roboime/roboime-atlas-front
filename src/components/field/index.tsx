@@ -1,5 +1,5 @@
 import React from 'react'
-import {FrameRequest, MatchesPacket} from '../../protos/ssl/messages_robocup_ssl_wrapper_pb'
+import {FrameRequest, MatchesPacket, MatchInfoRequest} from '../../protos/ssl/messages_robocup_ssl_wrapper_pb'
 import {ActiveMatchesRequest} from '../../protos/ssl/messages_robocup_ssl_wrapper_pb'
 import {RoboIMEAtlasClient} from '../../protos/ssl/messages_robocup_ssl_wrapper_pb_service'
 
@@ -259,6 +259,13 @@ class Field extends React.Component<{}, IFieldState> {
         for (let match of packet.getMatchList()) {
           console.log("match id", match.getMatchId())
           console.log("match name", match.getMatchName())
+
+          // @TODO make this match info gathering another coroutine with lower update rate
+          // var matchInfoReq = new MatchInfoRequest()
+          // matchInfoReq.setMatchId(match.getMatchId())
+          // client.getMatchInfo(matchInfoReq, (err, resp) => {
+          //   console.log("referee: ", resp)
+          // })
 
           matches.push({
             id: match.getMatchId(),

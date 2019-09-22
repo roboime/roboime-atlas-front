@@ -2,6 +2,7 @@
 // file: messages_robocup_ssl_wrapper.proto
 
 import * as messages_robocup_ssl_wrapper_pb from "./messages_robocup_ssl_wrapper_pb";
+import * as referee_pb from "./referee_pb";
 import {grpc} from "@improbable-eng/grpc-web";
 
 type RoboIMEAtlasGetFrame = {
@@ -22,10 +23,20 @@ type RoboIMEAtlasGetActiveMatches = {
   readonly responseType: typeof messages_robocup_ssl_wrapper_pb.MatchesPacket;
 };
 
+type RoboIMEAtlasGetMatchInfo = {
+  readonly methodName: string;
+  readonly service: typeof RoboIMEAtlas;
+  readonly requestStream: false;
+  readonly responseStream: false;
+  readonly requestType: typeof messages_robocup_ssl_wrapper_pb.MatchInfoRequest;
+  readonly responseType: typeof referee_pb.SSL_Referee;
+};
+
 export class RoboIMEAtlas {
   static readonly serviceName: string;
   static readonly GetFrame: RoboIMEAtlasGetFrame;
   static readonly GetActiveMatches: RoboIMEAtlasGetActiveMatches;
+  static readonly GetMatchInfo: RoboIMEAtlasGetMatchInfo;
 }
 
 export type ServiceError = { message: string, code: number; metadata: grpc.Metadata }
@@ -69,6 +80,15 @@ export class RoboIMEAtlasClient {
   getActiveMatches(
     requestMessage: messages_robocup_ssl_wrapper_pb.ActiveMatchesRequest,
     callback: (error: ServiceError|null, responseMessage: messages_robocup_ssl_wrapper_pb.MatchesPacket|null) => void
+  ): UnaryResponse;
+  getMatchInfo(
+    requestMessage: messages_robocup_ssl_wrapper_pb.MatchInfoRequest,
+    metadata: grpc.Metadata,
+    callback: (error: ServiceError|null, responseMessage: referee_pb.SSL_Referee|null) => void
+  ): UnaryResponse;
+  getMatchInfo(
+    requestMessage: messages_robocup_ssl_wrapper_pb.MatchInfoRequest,
+    callback: (error: ServiceError|null, responseMessage: referee_pb.SSL_Referee|null) => void
   ): UnaryResponse;
 }
 
