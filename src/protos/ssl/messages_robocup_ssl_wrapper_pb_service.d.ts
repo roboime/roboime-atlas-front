@@ -2,6 +2,7 @@
 // file: messages_robocup_ssl_wrapper.proto
 
 import * as messages_robocup_ssl_wrapper_pb from "./messages_robocup_ssl_wrapper_pb";
+import * as messages_robocup_ssl_geometry_pb from "./messages_robocup_ssl_geometry_pb";
 import * as referee_pb from "./referee_pb";
 import {grpc} from "@improbable-eng/grpc-web";
 
@@ -12,6 +13,15 @@ type RoboIMEAtlasGetFrame = {
   readonly responseStream: true;
   readonly requestType: typeof messages_robocup_ssl_wrapper_pb.FrameRequest;
   readonly responseType: typeof messages_robocup_ssl_wrapper_pb.SSL_WrapperPacket;
+};
+
+type RoboIMEAtlasGetGeometry = {
+  readonly methodName: string;
+  readonly service: typeof RoboIMEAtlas;
+  readonly requestStream: false;
+  readonly responseStream: false;
+  readonly requestType: typeof messages_robocup_ssl_wrapper_pb.FrameRequest;
+  readonly responseType: typeof messages_robocup_ssl_geometry_pb.SSL_GeometryData;
 };
 
 type RoboIMEAtlasGetActiveMatches = {
@@ -35,6 +45,7 @@ type RoboIMEAtlasGetMatchInfo = {
 export class RoboIMEAtlas {
   static readonly serviceName: string;
   static readonly GetFrame: RoboIMEAtlasGetFrame;
+  static readonly GetGeometry: RoboIMEAtlasGetGeometry;
   static readonly GetActiveMatches: RoboIMEAtlasGetActiveMatches;
   static readonly GetMatchInfo: RoboIMEAtlasGetMatchInfo;
 }
@@ -72,6 +83,15 @@ export class RoboIMEAtlasClient {
 
   constructor(serviceHost: string, options?: grpc.RpcOptions);
   getFrame(requestMessage: messages_robocup_ssl_wrapper_pb.FrameRequest, metadata?: grpc.Metadata): ResponseStream<messages_robocup_ssl_wrapper_pb.SSL_WrapperPacket>;
+  getGeometry(
+    requestMessage: messages_robocup_ssl_wrapper_pb.FrameRequest,
+    metadata: grpc.Metadata,
+    callback: (error: ServiceError|null, responseMessage: messages_robocup_ssl_geometry_pb.SSL_GeometryData|null) => void
+  ): UnaryResponse;
+  getGeometry(
+    requestMessage: messages_robocup_ssl_wrapper_pb.FrameRequest,
+    callback: (error: ServiceError|null, responseMessage: messages_robocup_ssl_geometry_pb.SSL_GeometryData|null) => void
+  ): UnaryResponse;
   getActiveMatches(
     requestMessage: messages_robocup_ssl_wrapper_pb.ActiveMatchesRequest,
     metadata: grpc.Metadata,

@@ -3,12 +3,127 @@
 
 import * as jspb from "google-protobuf";
 
-export class SSL_GeometryFieldSize extends jspb.Message {
-  hasLineWidth(): boolean;
-  clearLineWidth(): void;
-  getLineWidth(): number | undefined;
-  setLineWidth(value: number): void;
+export class Vector2f extends jspb.Message {
+  hasX(): boolean;
+  clearX(): void;
+  getX(): number | undefined;
+  setX(value: number): void;
 
+  hasY(): boolean;
+  clearY(): void;
+  getY(): number | undefined;
+  setY(value: number): void;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): Vector2f.AsObject;
+  static toObject(includeInstance: boolean, msg: Vector2f): Vector2f.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: Vector2f, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): Vector2f;
+  static deserializeBinaryFromReader(message: Vector2f, reader: jspb.BinaryReader): Vector2f;
+}
+
+export namespace Vector2f {
+  export type AsObject = {
+    x?: number,
+    y?: number,
+  }
+}
+
+export class SSL_FieldLineSegment extends jspb.Message {
+  hasName(): boolean;
+  clearName(): void;
+  getName(): string | undefined;
+  setName(value: string): void;
+
+  hasP1(): boolean;
+  clearP1(): void;
+  getP1(): Vector2f;
+  setP1(value?: Vector2f): void;
+
+  hasP2(): boolean;
+  clearP2(): void;
+  getP2(): Vector2f;
+  setP2(value?: Vector2f): void;
+
+  hasThickness(): boolean;
+  clearThickness(): void;
+  getThickness(): number | undefined;
+  setThickness(value: number): void;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): SSL_FieldLineSegment.AsObject;
+  static toObject(includeInstance: boolean, msg: SSL_FieldLineSegment): SSL_FieldLineSegment.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: SSL_FieldLineSegment, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): SSL_FieldLineSegment;
+  static deserializeBinaryFromReader(message: SSL_FieldLineSegment, reader: jspb.BinaryReader): SSL_FieldLineSegment;
+}
+
+export namespace SSL_FieldLineSegment {
+  export type AsObject = {
+    name?: string,
+    p1: Vector2f.AsObject,
+    p2: Vector2f.AsObject,
+    thickness?: number,
+  }
+}
+
+export class SSL_FieldCicularArc extends jspb.Message {
+  hasName(): boolean;
+  clearName(): void;
+  getName(): string | undefined;
+  setName(value: string): void;
+
+  hasCenter(): boolean;
+  clearCenter(): void;
+  getCenter(): Vector2f;
+  setCenter(value?: Vector2f): void;
+
+  hasRadius(): boolean;
+  clearRadius(): void;
+  getRadius(): number | undefined;
+  setRadius(value: number): void;
+
+  hasA1(): boolean;
+  clearA1(): void;
+  getA1(): number | undefined;
+  setA1(value: number): void;
+
+  hasA2(): boolean;
+  clearA2(): void;
+  getA2(): number | undefined;
+  setA2(value: number): void;
+
+  hasThickness(): boolean;
+  clearThickness(): void;
+  getThickness(): number | undefined;
+  setThickness(value: number): void;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): SSL_FieldCicularArc.AsObject;
+  static toObject(includeInstance: boolean, msg: SSL_FieldCicularArc): SSL_FieldCicularArc.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: SSL_FieldCicularArc, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): SSL_FieldCicularArc;
+  static deserializeBinaryFromReader(message: SSL_FieldCicularArc, reader: jspb.BinaryReader): SSL_FieldCicularArc;
+}
+
+export namespace SSL_FieldCicularArc {
+  export type AsObject = {
+    name?: string,
+    center: Vector2f.AsObject,
+    radius?: number,
+    a1?: number,
+    a2?: number,
+    thickness?: number,
+  }
+}
+
+export class SSL_GeometryFieldSize extends jspb.Message {
   hasFieldLength(): boolean;
   clearFieldLength(): void;
   getFieldLength(): number | undefined;
@@ -18,16 +133,6 @@ export class SSL_GeometryFieldSize extends jspb.Message {
   clearFieldWidth(): void;
   getFieldWidth(): number | undefined;
   setFieldWidth(value: number): void;
-
-  hasBoundaryWidth(): boolean;
-  clearBoundaryWidth(): void;
-  getBoundaryWidth(): number | undefined;
-  setBoundaryWidth(value: number): void;
-
-  hasRefereeWidth(): boolean;
-  clearRefereeWidth(): void;
-  getRefereeWidth(): number | undefined;
-  setRefereeWidth(value: number): void;
 
   hasGoalWidth(): boolean;
   clearGoalWidth(): void;
@@ -39,40 +144,20 @@ export class SSL_GeometryFieldSize extends jspb.Message {
   getGoalDepth(): number | undefined;
   setGoalDepth(value: number): void;
 
-  hasGoalWallWidth(): boolean;
-  clearGoalWallWidth(): void;
-  getGoalWallWidth(): number | undefined;
-  setGoalWallWidth(value: number): void;
+  hasBoundaryWidth(): boolean;
+  clearBoundaryWidth(): void;
+  getBoundaryWidth(): number | undefined;
+  setBoundaryWidth(value: number): void;
 
-  hasCenterCircleRadius(): boolean;
-  clearCenterCircleRadius(): void;
-  getCenterCircleRadius(): number | undefined;
-  setCenterCircleRadius(value: number): void;
+  clearFieldLinesList(): void;
+  getFieldLinesList(): Array<SSL_FieldLineSegment>;
+  setFieldLinesList(value: Array<SSL_FieldLineSegment>): void;
+  addFieldLines(value?: SSL_FieldLineSegment, index?: number): SSL_FieldLineSegment;
 
-  hasDefenseRadius(): boolean;
-  clearDefenseRadius(): void;
-  getDefenseRadius(): number | undefined;
-  setDefenseRadius(value: number): void;
-
-  hasDefenseStretch(): boolean;
-  clearDefenseStretch(): void;
-  getDefenseStretch(): number | undefined;
-  setDefenseStretch(value: number): void;
-
-  hasFreeKickFromDefenseDist(): boolean;
-  clearFreeKickFromDefenseDist(): void;
-  getFreeKickFromDefenseDist(): number | undefined;
-  setFreeKickFromDefenseDist(value: number): void;
-
-  hasPenaltySpotFromFieldLineDist(): boolean;
-  clearPenaltySpotFromFieldLineDist(): void;
-  getPenaltySpotFromFieldLineDist(): number | undefined;
-  setPenaltySpotFromFieldLineDist(value: number): void;
-
-  hasPenaltyLineFromSpotDist(): boolean;
-  clearPenaltyLineFromSpotDist(): void;
-  getPenaltyLineFromSpotDist(): number | undefined;
-  setPenaltyLineFromSpotDist(value: number): void;
+  clearFieldArcsList(): void;
+  getFieldArcsList(): Array<SSL_FieldCicularArc>;
+  setFieldArcsList(value: Array<SSL_FieldCicularArc>): void;
+  addFieldArcs(value?: SSL_FieldCicularArc, index?: number): SSL_FieldCicularArc;
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): SSL_GeometryFieldSize.AsObject;
@@ -86,20 +171,13 @@ export class SSL_GeometryFieldSize extends jspb.Message {
 
 export namespace SSL_GeometryFieldSize {
   export type AsObject = {
-    lineWidth?: number,
     fieldLength?: number,
     fieldWidth?: number,
-    boundaryWidth?: number,
-    refereeWidth?: number,
     goalWidth?: number,
     goalDepth?: number,
-    goalWallWidth?: number,
-    centerCircleRadius?: number,
-    defenseRadius?: number,
-    defenseStretch?: number,
-    freeKickFromDefenseDist?: number,
-    penaltySpotFromFieldLineDist?: number,
-    penaltyLineFromSpotDist?: number,
+    boundaryWidth?: number,
+    fieldLinesList: Array<SSL_FieldLineSegment.AsObject>,
+    fieldArcsList: Array<SSL_FieldCicularArc.AsObject>,
   }
 }
 

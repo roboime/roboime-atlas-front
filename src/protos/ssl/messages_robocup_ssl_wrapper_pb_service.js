@@ -1,8 +1,8 @@
 // package: 
 // file: messages_robocup_ssl_wrapper.proto
-/* eslint-disable */
 
 var messages_robocup_ssl_wrapper_pb = require("./messages_robocup_ssl_wrapper_pb");
+var messages_robocup_ssl_geometry_pb = require("./messages_robocup_ssl_geometry_pb");
 var referee_pb = require("./referee_pb");
 var grpc = require("@improbable-eng/grpc-web").grpc;
 
@@ -19,6 +19,15 @@ RoboIMEAtlas.GetFrame = {
   responseStream: true,
   requestType: messages_robocup_ssl_wrapper_pb.FrameRequest,
   responseType: messages_robocup_ssl_wrapper_pb.SSL_WrapperPacket
+};
+
+RoboIMEAtlas.GetGeometry = {
+  methodName: "GetGeometry",
+  service: RoboIMEAtlas,
+  requestStream: false,
+  responseStream: false,
+  requestType: messages_robocup_ssl_wrapper_pb.FrameRequest,
+  responseType: messages_robocup_ssl_geometry_pb.SSL_GeometryData
 };
 
 RoboIMEAtlas.GetActiveMatches = {
@@ -80,6 +89,37 @@ RoboIMEAtlasClient.prototype.getFrame = function getFrame(requestMessage, metada
     },
     cancel: function () {
       listeners = null;
+      client.close();
+    }
+  };
+};
+
+RoboIMEAtlasClient.prototype.getGeometry = function getGeometry(requestMessage, metadata, callback) {
+  if (arguments.length === 2) {
+    callback = arguments[1];
+  }
+  var client = grpc.unary(RoboIMEAtlas.GetGeometry, {
+    request: requestMessage,
+    host: this.serviceHost,
+    metadata: metadata,
+    transport: this.options.transport,
+    debug: this.options.debug,
+    onEnd: function (response) {
+      if (callback) {
+        if (response.status !== grpc.Code.OK) {
+          var err = new Error(response.statusMessage);
+          err.code = response.status;
+          err.metadata = response.trailers;
+          callback(err, null);
+        } else {
+          callback(null, response.message);
+        }
+      }
+    }
+  });
+  return {
+    cancel: function () {
+      callback = null;
       client.close();
     }
   };

@@ -8,7 +8,8 @@ import { SSL_Referee } from '../../protos/ssl/referee_pb';
 
 const client = new RoboIMEAtlasClient("https://localhost:9090")
 
-const g = {
+
+let g:any = {
   line_width: 10,
   field_length: 9000,
   field_width: 6000,
@@ -89,6 +90,7 @@ class Field extends React.Component<{}, IFieldState> {
     this.updateFrame()
     this.updateRefbox()
     this.updateMatches()
+    this.updateGeometry()
 
     this.state = {
       yellowRobots: [
@@ -331,13 +333,6 @@ class Field extends React.Component<{}, IFieldState> {
           balls: balls,
         })
       }
-      const geometry = resp.getGeometry()
-      if (geometry !== undefined) {
-        console.log("geometry ", geometry)
-      }
-    })
-
-    stream.on("status", (status) => {
     })
   }
 
@@ -363,6 +358,17 @@ class Field extends React.Component<{}, IFieldState> {
     }
   }
 
+  async updateGeometry() {
+    while (true) {
+      try {
+        this.getGeometry()
+      } catch(e) {
+        return
+      }
+      await delay(2000)
+    }
+  }
+
   getActiveMatches() {
     const matchesReq = new ActiveMatchesRequest() 
     var matches: Array<{ id: number, name: string }> = []
@@ -372,8 +378,6 @@ class Field extends React.Component<{}, IFieldState> {
       } else {
         let packet = resp as MatchesPacket
         for (let match of packet.getMatchList()) {
-          console.log("match id", match.getMatchId())
-          console.log("match name", match.getMatchName())
 
           // @TODO make this match info gathering another coroutine with lower updateFrame rate
           // var matchInfoReq = new MatchInfoRequest()
@@ -418,6 +422,16 @@ class Field extends React.Component<{}, IFieldState> {
           ref: resp.toObject(),
         })
       }
+    })
+  }
+
+  getGeometry() {
+    var req = new FrameRequest()
+    req.setMatchId(1)
+    client.getGeometry(req, (err,resp) => {
+        if (resp != null) {
+          console.log("geometry ", resp)
+        }
     })
   }
 
