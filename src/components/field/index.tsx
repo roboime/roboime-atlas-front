@@ -409,7 +409,7 @@ class Field extends React.Component<{}, IFieldState> {
       } catch(e) {
         return
       }
-      await delay(1000)
+      await delay(600)
     }
   }
 
@@ -445,17 +445,6 @@ class Field extends React.Component<{}, IFieldState> {
       return createRobot(i, r.x, r.y, r.angle, r.text, className)
     })
 
-    // const yellowRobots = this.state.yellowRobots.map((r: any, i:any) => {
-    //   let className = "team-" + r.color
-
-    //   return this.createRobot(i, r.x, r.y, r.angle, r.text, className)
-    // })
-    // const blueRobots = this.state.blueRobots.map((r: any, i:any) => {
-    //   let className = "team-" + r.color
-
-    //   return this.createRobot(i, r.x, r.y, r.angle, r.text, className)
-    // })
-
     const balls = this.state.balls.map((r:any) => {
       return this.createBall(r.x, r.y)
     })
@@ -474,6 +463,8 @@ class Field extends React.Component<{}, IFieldState> {
     const yellowScore = this.state.ref.yellow.score
     // TODO: convert time to minute:second
     const time = this.state.ref.stageTimeLeft
+    const minutes = time ? Math.floor(time / 60000000): 0
+    const seconds = time ? Math.floor(((time / 60000000) - minutes)*60) : 0
     const stage = this.stg2txt(this.state.ref.stage)
     const command = this.cmd2txt(this.state.ref.command ? this.state.ref.command : 0)
 
@@ -507,7 +498,7 @@ class Field extends React.Component<{}, IFieldState> {
               lengthAdjust="spacingAndGlyphs"
               x="2"
               y={-g.field_width / 2 - 25}
-            >{time}</text>
+            >{minutes}: {seconds}</text>
             <text
               className="team-name left-name"
               textAnchor="start"
