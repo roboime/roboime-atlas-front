@@ -8,7 +8,6 @@ import { SSL_Referee } from '../../protos/ssl/referee_pb';
 
 const client = new RoboIMEAtlasClient("https://localhost:9090")
 
-
 let g:any = {
   line_width: 10,
   field_length: 9000,
@@ -78,7 +77,7 @@ interface IFieldState {
     name: string | undefined
   }[]
 
-  matchID: string
+  matchID: number | undefined
 
   // TODO: define referee properly
   ref: SSL_Referee.AsObject
@@ -87,10 +86,6 @@ interface IFieldState {
 class Field extends React.Component<{}, IFieldState> {
   constructor(props: { match: { params: { matchID: string }}}) {
     super(props)
-    this.updateFrame()
-    this.updateRefbox()
-    this.updateMatches()
-    this.updateGeometry()
 
     this.state = {
       yellowRobots: [
@@ -100,16 +95,22 @@ class Field extends React.Component<{}, IFieldState> {
       balls: [
         {x: 0, y:0 },
       ],
-      matches: [{
-        id: 1,
-        name: "Potato x Batata"
-      },{
-        id: 2,
-        name: "IME x FEI"
-      }],
-      matchID: props.match.params.matchID,
+      matches: [],
+      matchID: undefined,
       ref: new SSL_Referee().toObject()
     }
+
+    this.updateFrame = this.updateFrame.bind(this)
+    this.updateRefbox = this.updateRefbox.bind(this)
+    this.updateGeometry = this.updateGeometry.bind(this)
+    this.onClick = this.onClick.bind(this)
+  }
+
+  componentDidMount() {
+    this.updateFrame()
+    this.updateRefbox()
+    this.updateMatches()
+    this.updateGeometry()
   }
 
   viewBox() {
@@ -199,7 +200,7 @@ class Field extends React.Component<{}, IFieldState> {
       case 12: return "penalty shootout"
       // The game is over.
       case 13: return "post game"
-      default: return ""
+      default: return "pre game"
     }
   }
 
@@ -254,10 +255,9 @@ class Field extends React.Component<{}, IFieldState> {
     return d
   }
 
-  getFrame() {
-
+  getFrame(matchID: number) {
     var req = new FrameRequest()
-    req.setMatchId(1)
+    req.setMatchId(matchID)
     var stream
     try {
       stream = client.getFrame(req)
@@ -338,10 +338,12 @@ class Field extends React.Component<{}, IFieldState> {
 
   async updateFrame() {
     while (true) {
-      try {
-        this.getFrame()
-      } catch(e) {
-        return
+      if (this.state.matchID) {
+        try {
+          this.getFrame(this.state.matchID)
+        } catch(e) {
+          return
+        }
       }
       await delay(10)
     }
@@ -360,10 +362,12 @@ class Field extends React.Component<{}, IFieldState> {
 
   async updateGeometry() {
     while (true) {
-      try {
-        this.getGeometry()
-      } catch(e) {
-        return
+      if (this.state.matchID) {
+        try {
+          this.getGeometry(this.state.matchID)
+        } catch(e) {
+          return
+        }
       }
       await delay(2000)
     }
@@ -378,14 +382,6 @@ class Field extends React.Component<{}, IFieldState> {
       } else {
         let packet = resp as MatchesPacket
         for (let match of packet.getMatchList()) {
-
-          // @TODO make this match info gathering another coroutine with lower updateFrame rate
-          // var matchInfoReq = new MatchInfoRequest()
-          // matchInfoReq.setMatchId(match.getMatchId())
-          // client.getMatchInfo(matchInfoReq, (err, resp) => {
-          //   console.log("referee: ", resp)
-          // })
-
           matches.push({
             id: match.getMatchId(),
             name: match.getMatchName(), 
@@ -399,23 +395,24 @@ class Field extends React.Component<{}, IFieldState> {
         })
       }
     })
-
   }
 
   async updateRefbox() {
     while (true) {
-      try {
-        this.getRefbox()
-      } catch(e) {
-        return
+      if (this.state.matchID) {
+        try {
+          this.getRefbox(this.state.matchID)
+        } catch(e) {
+          return
+        }
       }
       await delay(600)
     }
   }
 
-  getRefbox() {
+  getRefbox(matchID: number) {
     var req = new MatchInfoRequest()
-    req.setMatchId(1)
+    req.setMatchId(matchID)
     client.getMatchInfo(req, (err,resp) => {
       if (resp != null) {
         this.setState({
@@ -425,13 +422,19 @@ class Field extends React.Component<{}, IFieldState> {
     })
   }
 
-  getGeometry() {
+  getGeometry(matchID: number) {
     var req = new FrameRequest()
-    req.setMatchId(1)
+    req.setMatchId(matchID)
     client.getGeometry(req, (err,resp) => {
         if (resp != null) {
           console.log("geometry ", resp)
         }
+    })
+  }
+
+  onClick(event: any) {
+    this.setState({
+      matchID: event.target.id
     })
   }
 
@@ -453,7 +456,7 @@ class Field extends React.Component<{}, IFieldState> {
 
     const dropdownItens = this.state.matches.map((match) => {
       return (
-        <Dropdown.Item href={`${match.id}`} key={match.id}>{match.id} - {match.name}</Dropdown.Item>
+        <Dropdown.Item onClick={this.onClick} key={match.id} id={match.id}>{match.id} - {match.name}</Dropdown.Item>
       )
     })
 
