@@ -8,52 +8,82 @@ import { SSL_Referee } from '../../protos/ssl/referee_pb';
 
 const client = new RoboIMEAtlasClient("https://localhost:9090")
 
-let g:any = {
-  line_width: 10,
-  field_length: 9000,
-  field_width: 6000,
-  boundary_width: 250,
-  referee_width: 500,
-  goal_width: 700,
-  goal_depth: 180,
-  goal_wall_width: 20,
-  center_circle_radius: 500,
-  defense_radius: 500,
-  defense_stretch: 350,
-  free_kick_from_defense_dist: 700,
-  penalty_spot_from_field_line_dist: 450,
-  penalty_line_from_spot_dist: 350,
+let geometry:any = { 
+  "fieldLength": 9000,
+  "fieldWidth": 6000,
+  "goalWidth": 1000,
+  "goalDepth": 200,
+  "boundaryWidth": 250,
+  "fieldLinesList": [{ 
+    "name": "TopTouchLine",
+    "p1": { "x": -4500, "y": 3000 },
+    "p2": { "x": 4500, "y": 3000 },
+    "thickness":10
+  },{ 
+    "name": "BottomTouchLine",
+    "p1": { "x": -4500, "y": -3000 },
+    "p2": { "x": 4500, "y": -3000 },
+    "thickness": 10
+  },{ 
+    "name": "LeftGoalLine",
+    "p1": { "x": -4500, "y": -3000 },
+    "p2": { "x": -4500, "y": 3000 },
+    "thickness": 10
+  },{ 
+    "name": "RightGoalLine",
+    "p1": { "x": 4500, "y": -3000 },
+    "p2": { "x": 4500, "y": 3000 },
+    "thickness": 10
+  },{ 
+    "name": "HalfwayLine",
+    "p1": { "x": 0, "y": -3000 },
+    "p2": { "x": 0, "y": 3000 },
+    "thickness": 10
+  },{ 
+    "name": "CenterLine",
+    "p1": { "x": -4500, "y": 0 },
+    "p2":{ "x": 4500, "y": 0 },
+    "thickness": 10
+  },{ 
+    "name": "LeftPenaltyStretch",
+    "p1": { "x": -3500, "y": -1000 },
+    "p2": { "x": -3500, "y": 1000 },
+    "thickness": 10
+  },{ 
+    "name": "RightPenaltyStretch",
+    "p1": { "x": 3500, "y": -1000 },
+    "p2": { "x": 3500, "y": 1000 },
+    "thickness": 10
+  },{ 
+    "name": "LeftFieldLeftPenaltyStretch",
+    "p1": { "x": -4500, "y": -1000 },
+    "p2": { "x": -3500, "y": -1000 },
+    "thickness": 10
+  },{ 
+    "name": "LeftFieldRightPenaltyStretch",
+    "p1": { "x": -4500, "y": 1000 },
+    "p2": { "x": -3500, "y": 1000 },
+    "thickness": 10
+  },{ 
+    "name": "RightFieldRightPenaltyStretch",
+    "p1": { "x": 4500, "y": -1000 },
+    "p2": { "x": 3500, "y": -1000 },
+    "thickness": 10
+  },{ 
+    "name": "RightFieldLeftPenaltyStretch",
+    "p1": { "x": 4500, "y": 1000 },
+    "p2": { "x": 3500, "y": 1000 },
+    "thickness": 10
+  }],
+  "fieldArcsList": [{ 
+    "name": "CenterCircle",
+    "center": { "x": 0, "y": 0 },
+    "radius": 500,
+    "a1": 0,
+    "a2": 6.283185005187988,
+    "thickness": 10
+  }]
 }
-
-const dField = `M ${-g.field_length / 2} ${-g.field_width / 2} h ${g.field_length} v ${g.field_width} h-${g.field_length} v-${g.field_width} m ${g.line_width} ${g.line_width} v ${g.field_width - 2 * g.line_width} h ${g.field_length - 2 * g.line_width} v-${g.field_width - 2 * g.line_width} h-${g.field_length - 2 * g.line_width}
-  M ${g.line_width / 2}-${g.field_width / 2} v ${g.field_width} h-${g.line_width} v-${g.field_width} h ${g.line_width}
-  M 0-${g.center_circle_radius} a ${g.center_circle_radius} ${g.center_circle_radius} 0 0 1 0 ${2 * g.center_circle_radius} a ${g.center_circle_radius} ${g.center_circle_radius} 0 0 1 0-${2 * g.center_circle_radius} m 0 ${g.line_width} a ${g.center_circle_radius - g.line_width} ${g.center_circle_radius - g.line_width} 0 0 0 0 ${2 * (g.center_circle_radius - g.line_width)} a ${g.center_circle_radius - g.line_width} ${g.center_circle_radius - g.line_width} 0 0 0 0-${2 * (g.center_circle_radius - g.line_width)}
-  M 0-${1.5 * g.line_width} a ${1.5 * g.line_width} ${1.5 * g.line_width} 0 0 1 0 ${3 * g.line_width} a ${1.5 * g.line_width} ${1.5 * g.line_width} 0 0 1 0-${3 * g.line_width}
-  M-${g.field_length / 2}-${g.defense_radius + g.defense_stretch / 2} a ${g.defense_radius} ${g.defense_radius} 0 0 1 ${g.defense_radius} ${g.defense_radius} v ${g.defense_stretch} a ${g.defense_radius} ${g.defense_radius} 0 0 1-${g.defense_radius} ${g.defense_radius} v-${g.line_width} a ${g.defense_radius - g.line_width} ${g.defense_radius - g.line_width} 0 0 0 ${g.defense_radius - g.line_width}-${g.defense_radius - g.line_width} v-${g.defense_stretch} a ${g.defense_radius - g.line_width} ${g.defense_radius - g.line_width} 0 0 0-${g.defense_radius - g.line_width}-${g.defense_radius - g.line_width}
-  M ${g.field_length / 2} ${g.defense_radius + g.defense_stretch / 2} a ${g.defense_radius} ${g.defense_radius} 0 0 1-${g.defense_radius}-${g.defense_radius} v-${g.defense_stretch} a ${g.defense_radius} ${g.defense_radius} 0 0 1 ${g.defense_radius}-${g.defense_radius} v ${g.line_width} a ${g.defense_radius - g.line_width} ${g.defense_radius - g.line_width} 0 0 0-${g.defense_radius - g.line_width} ${g.defense_radius - g.line_width} v ${g.defense_stretch} a ${g.defense_radius - g.line_width} ${g.defense_radius - g.line_width} 0 0 0 ${g.defense_radius - g.line_width} ${g.defense_radius - g.line_width}
-  M-${g.field_length / 2 - g.penalty_spot_from_field_line_dist - g.line_width} 0 a ${1 * g.line_width} ${1 * g.line_width} 0 0 1 ${2 * g.line_width} 0 a ${1 * g.line_width} ${1 * g.line_width} 0 0 1-${2 * g.line_width} 0
-  M ${g.field_length / 2 - g.penalty_spot_from_field_line_dist - g.line_width} 0 a ${1 * g.line_width} ${1 * g.line_width} 0 0 1-${2 * g.line_width} 0 a ${1 * g.line_width} ${1 * g.line_width} 0 0 1 ${2 * g.line_width} 0
-  z`
-
-const dLeftGoal = `M-${g.field_length / 2}-${g.goal_width / 2 + g.goal_wall_width / 2}
-  h-${g.goal_depth + g.goal_wall_width}
-  v ${g.goal_width + 2 * g.goal_wall_width}
-  h ${g.goal_depth + g.goal_wall_width}
-  v-${g.goal_wall_width}
-  h-${g.goal_depth}
-  v-${g.goal_width}
-  h ${g.goal_depth}
-  z`
-
-const dRightGoal = `M ${g.field_length / 2}-${g.goal_width / 2 + g.goal_wall_width / 2}
-  h ${g.goal_depth + g.goal_wall_width}
-  v ${g.goal_width + 2 * g.goal_wall_width}
-  h-${g.goal_depth + g.goal_wall_width}
-  v-${g.goal_wall_width}
-  h ${g.goal_depth}
-  v-${g.goal_width}
-  h-${g.goal_depth}
-  z`
 
 interface Robot{
   x: number | undefined
@@ -114,8 +144,8 @@ class Field extends React.Component<{}, IFieldState> {
   }
 
   viewBox() {
-    const inner_width = 8500
-    const inner_height = 6500
+    const inner_width = geometry.fieldLength
+    const inner_height = geometry.fieldWidth
 
     return -(inner_width / 2)
       + ' ' + - (inner_height / 2)
@@ -427,7 +457,7 @@ class Field extends React.Component<{}, IFieldState> {
     req.setMatchId(matchID)
     client.getGeometry(req, (err,resp) => {
         if (resp != null) {
-          console.log("geometry ", resp)
+          geometry = resp.toObject().field
         }
     })
   }
@@ -439,10 +469,39 @@ class Field extends React.Component<{}, IFieldState> {
   }
 
   render() {
+    const fieldLines = geometry.fieldLinesList.map(function(line: any, i: number) {
+      return (
+        <line key={i} className="field-line" x1={line.p1.x} y1={line.p1.y} x2={line.p2.x} y2={line.p2.y} />
+      )
+    })
+
+    const leftGoal = (
+      <React.Fragment>
+        <line className="left-goal" x1={- geometry.fieldLength / 2} y1={geometry.goalWidth / 2} x2={- geometry.fieldLength / 2 - geometry.goalDepth} y2={geometry.goalWidth / 2} />
+        <line className="left-goal" x1={- geometry.fieldLength / 2 - geometry.goalDepth} y1={geometry.goalWidth / 2} x2={- geometry.fieldLength / 2 - geometry.goalDepth} y2={- geometry.goalWidth / 2} />
+        <line className="left-goal" x1={- geometry.fieldLength / 2 - geometry.goalDepth} y1={- geometry.goalWidth / 2} x2={- geometry.fieldLength / 2} y2={- geometry.goalWidth / 2} />
+      </React.Fragment>
+    )
+
+    const rightGoal = (
+      <React.Fragment>
+        <line className="right-goal" x1={geometry.fieldLength / 2} y1={geometry.goalWidth / 2} x2={geometry.fieldLength / 2 + geometry.goalDepth} y2={geometry.goalWidth / 2} />
+        <line className="right-goal" x1={geometry.fieldLength / 2 + geometry.goalDepth} y1={geometry.goalWidth / 2} x2={geometry.fieldLength / 2 + geometry.goalDepth} y2={- geometry.goalWidth / 2} />
+        <line className="right-goal" x1={geometry.fieldLength / 2 + geometry.goalDepth} y1={- geometry.goalWidth / 2} x2={geometry.fieldLength / 2} y2={- geometry.goalWidth / 2} />
+      </React.Fragment>
+    )
+
+    const arcs = geometry.fieldArcsList.map(function(arc: any, i: number) {
+      return (
+        <circle className="circle" cx={arc.center.x} cy={arc.center.y} r={arc.radius}/>
+      )
+    })
+
     const blueRobots = Object.values(this.state.blueRobots).map(function(r:any,i:any) {
       let className = "team-" + r.color
       return createRobot(i, r.x, r.y, r.angle, r.text, className)
     })
+
     const yellowRobots = Object.values(this.state.yellowRobots).map(function(r:any,i:any) {
       let className = "team-" + r.color
       return createRobot(i, r.x, r.y, r.angle, r.text, className)
@@ -493,37 +552,38 @@ class Field extends React.Component<{}, IFieldState> {
             y="50%"
             width="100%"
             height="100%">
-            <path className="field-line" d={dField}></path>
-            <path className="left-goal" d={dLeftGoal}></path>
-            <path className="right-goal" d={dRightGoal}></path>
+            {fieldLines}
+            {leftGoal}
+            {rightGoal}
+            {arcs}
             <text
               className="time-left"
               lengthAdjust="spacingAndGlyphs"
               x="2"
-              y={-g.field_width / 2 - 25}
+              y={-geometry.fieldWidth / 2 - 25}
             >{minutes}: {seconds}</text>
             <text
               className="team-name left-name"
               textAnchor="start"
               lengthAdjust="spacingAndGlyphs"
-              x={-g.field_length / 2 + 25}
-              y={-g.field_width / 2 + 25 + 250}>{yellowName}</text>
+              x={-geometry.fieldLength / 2 + 25}
+              y={-geometry.fieldWidth / 2 + 25 + 250}>{yellowName}</text>
             <text
               className="team-name right-name"
               textAnchor="end"
               lengthAdjust="spacingAndGlyphs"
-              x={g.field_length / 2 - 25}
-              y={-g.field_width / 2 + 25 + 250}>{blueName}</text>
+              x={geometry.fieldLength / 2 - 25}
+              y={-geometry.fieldWidth / 2 + 25 + 250}>{blueName}</text>
             <text
               className="team-name left-score"
               textAnchor="end"
               x={-25}
-              y={-g.field_width / 2 + 25 + 250}>{yellowScore}</text>
+              y={-geometry.fieldWidth / 2 + 25 + 250}>{yellowScore}</text>
             <text
               className="team-name right-score"
               textAnchor="start"
               x={25}
-              y={-g.field_width / 2 + 25 + 250}>{blueScore}</text>
+              y={-geometry.fieldWidth / 2 + 25 + 250}>{blueScore}</text>
             {balls}
             {robots}
           </svg>
@@ -557,8 +617,14 @@ class Field extends React.Component<{}, IFieldState> {
             background-color: #19770f;
           }
 
-          .field-line, .left-goal, right-goal, .field-path, .field-text {
-            stroke-width: 5;
+          .circle {
+            stroke: white;
+            stroke-width: 25;
+            fill-opacity: 0.1;
+          }
+
+          .field-line, .left-goal, .right-goal, .field-path, .field-text {
+            stroke-width: 25;
             fill-opacity: 1;
           }
 
