@@ -568,7 +568,7 @@ class Field extends React.Component<{}, IFieldState> {
               className="time-left"
               lengthAdjust="spacingAndGlyphs"
               x="2"
-              y={-geometry.fieldWidth / 2 - 25}
+              y={geometry.fieldWidth / 2 - 25}
             >{minutes}: {seconds}</text>
             <text
               className="team-name left-name"
