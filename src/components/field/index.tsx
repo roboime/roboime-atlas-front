@@ -91,6 +91,7 @@ interface Robot{
   angle: number | undefined
   text: string | undefined
   color: string
+  ts : number
 }
 
 interface IFieldState {
@@ -298,6 +299,7 @@ class Field extends React.Component<{}, IFieldState> {
     stream.on("data", (resp) => {
       const frame = resp.getDetection()
       if (frame !== undefined) {
+        const now = Date.now()
         const yellow = frame.getRobotsYellowList()
         const blue = frame.getRobotsBlueList()
         const ball = frame.getBallsList()
@@ -315,7 +317,8 @@ class Field extends React.Component<{}, IFieldState> {
             y: bot.getY(),
             angle: yaw? (180*(yaw)/ 3.14)+180 : yaw,
             text: String(bot.getRobotId()),
-            color: 'yellow'
+            color: 'yellow',
+            ts: now
           }
         }
 
@@ -332,7 +335,8 @@ class Field extends React.Component<{}, IFieldState> {
             y: bot.getY(),
             angle: yaw? (180*(yaw)/ 3.14)+180 : yaw,
             text: String(bot.getRobotId()),
-            color: 'blue'
+            color: 'blue',
+            ts: now
           }
         }
 
@@ -497,13 +501,18 @@ class Field extends React.Component<{}, IFieldState> {
       )
     })
 
+    const now = Date.now()
     const blueRobots = Object.values(this.state.blueRobots).map(function(r:any,i:any) {
       let className = "team-" + r.color
+      // eslint-disable-next-line
+      if ((now - r.ts) > 2000) return
       return createRobot(i, r.x, r.y, r.angle, r.text, className)
     })
 
     const yellowRobots = Object.values(this.state.yellowRobots).map(function(r:any,i:any) {
       let className = "team-" + r.color
+      // eslint-disable-next-line
+      if ((now - r.ts) > 2000) return
       return createRobot(i, r.x, r.y, r.angle, r.text, className)
     })
 
@@ -523,7 +532,6 @@ class Field extends React.Component<{}, IFieldState> {
     const blueName = this.state.ref.blue.name
     const blueScore = this.state.ref.blue.score
     const yellowScore = this.state.ref.yellow.score
-    // TODO: convert time to minute:second
     const time = this.state.ref.stageTimeLeft
     const minutes = time ? Math.floor(time / 60000000): 0
     const seconds = time ? Math.floor(((time / 60000000) - minutes)*60) : 0
@@ -534,7 +542,7 @@ class Field extends React.Component<{}, IFieldState> {
       <React.Fragment>
         <Dropdown>
           <Dropdown.Toggle variant="success" id="dropdown-basic">
-            Selecionar Partida
+            Select Match
           </Dropdown.Toggle>
           <Dropdown.Menu>
             {dropdownItens}
