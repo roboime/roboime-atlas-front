@@ -538,6 +538,9 @@ class Field extends React.Component<{}, IFieldState> {
     const stage = this.stg2txt(this.state.ref.stage)
     const command = this.cmd2txt(this.state.ref.command ? this.state.ref.command : 0)
 
+    const formatedMinutes = ("0" + minutes.toString()).slice(-2)
+    const formatedSeconds = ("0" + seconds.toString()).slice(-2)
+
     return (
       <React.Fragment>
         <Dropdown>
@@ -569,7 +572,7 @@ class Field extends React.Component<{}, IFieldState> {
               lengthAdjust="spacingAndGlyphs"
               x="2"
               y={geometry.fieldWidth / 2 - 25}
-            >{minutes}: {seconds}</text>
+            >{formatedMinutes}:{formatedSeconds}</text>
             <text
               className="team-name left-name"
               textAnchor="start"
