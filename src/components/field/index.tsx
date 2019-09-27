@@ -654,14 +654,14 @@ class Field extends React.Component<{}, IFieldState> {
           }
 
           .time-left {
-            fill: rgba(0, 0, 0, 0.4);
-            font-size: 180px;
+            fill: rgba(0, 0, 0, 0.6);
+            font-size: 300px;
             text-anchor: middle;
             white-space: pre;
           }
 
           .team-name {
-            fill: rgba(0, 0, 0, 0.4);
+            fill: rgba(0, 0, 0, 0.6);
             font-size: 300px;
           }
 
