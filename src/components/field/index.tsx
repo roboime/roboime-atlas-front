@@ -665,6 +665,16 @@ class Field extends React.Component<{}, IFieldState> {
             font-size: 300px;
           }
 
+          .right-name {
+            fill: rgba(10, 10, 255, 0.6);
+            font-size: 300px;
+          }
+
+          .left-name {
+            fill: rgba(255, 255, 10, 0.6);
+            font-size: 300px;
+          }
+
           .field-path {
             stroke: white;
             stroke-width: 10;
