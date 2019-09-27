@@ -592,7 +592,8 @@ class Field extends React.Component<{}, IFieldState> {
           .dropdown {
             position: absolute;
             z-index: 10;
-            right: 10px;
+            right: 50px;
+            top: 25px;
           }
 
           .info {
@@ -610,6 +611,7 @@ class Field extends React.Component<{}, IFieldState> {
           }
 
           .field {
+            padding: 50px;
             overflow: hidden;
             height: 100%;
             width: 100%;
@@ -623,7 +625,7 @@ class Field extends React.Component<{}, IFieldState> {
             fill-opacity: 0.1;
           }
 
-          .field-line, .left-goal, .right-goal, .field-path, .field-text {
+          .field-line, .left-goal, .right-goal, .field-text {
             stroke-width: 25;
             fill-opacity: 1;
           }
@@ -657,6 +659,8 @@ class Field extends React.Component<{}, IFieldState> {
 
           .field-path {
             stroke: white;
+            stroke-width: 10;
+            fill-opacity: 1;
           }
 
           .team-yellow {
@@ -679,6 +683,7 @@ class Field extends React.Component<{}, IFieldState> {
             fill: #ff931f;
             stroke: #c57a29;
             stroke-width: 5;
+            z-index: 10;
           }
         `}</style>
       </React.Fragment>
